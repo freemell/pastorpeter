@@ -324,7 +324,7 @@
             console.log('🖼️ Loading obstacle texture...');
             const textureLoader = new THREE.TextureLoader();
             obstacleTexture = textureLoader.load(
-                'breast (1).png',
+                './breast (1).png',
                 () => console.log('✅ Obstacle texture loaded!'),
                 undefined,
                 (err) => {
@@ -491,6 +491,14 @@
             gameStarted = true;
             document.getElementById('startBtn').style.display = 'none';
             console.log('✅ Game started, starting animation loop...');
+            
+            // Check if Three.js scene is properly initialized
+            if (!scene || !camera || !renderer) {
+                console.error('❌ Three.js not properly initialized!');
+                alert('Game failed to initialize. Please refresh the page.');
+                return;
+            }
+            
             animate();
         }
         
