@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Game</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: Arial;
+        }
+        
+        #debug {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 1000;
+            font-size: 12px;
+        }
+        
+        #startBtn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px 40px;
+            font-size: 24px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div id="debug">Debug Info Loading...</div>
+    <button id="startBtn">Start Game</button>
+    
+    <script>
+        let debugDiv = document.getElementById('debug');
+        let startBtn = document.getElementById('startBtn');
+        
+        function log(message) {
+            console.log(message);
+            debugDiv.innerHTML += '<br>' + message;
+        }
+        
+        log('Script starting...');
+        
+        // Check Three.js
+        if (typeof THREE === 'undefined') {
+            log('❌ Three.js failed to load!');
+        } else {
+            log('✅ Three.js loaded successfully!');
+        }
+        
+        // Game variables
+        let scene, camera, renderer, peter, obstacles = [];
+        let gameStarted = false;
+        let score = 0;
+        let currentLane = 1;
+        let isJumping = false;
+        const lanes = [-3, 0, 3];
+        
+        function init() {
+            log('🚀 Initializing...');
+            
+            try {
+                // Create scene
+                scene = new THREE.Scene();
+                scene.background = new THREE.Color(0x87CEEB);
+                log('✅ Scene created');
+                
+                // Create camera
+                camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                camera.position.set(0, 5, 15);
+                camera.lookAt(0, 0, 0);
+                log('✅ Camera created');
+                
+                // Create renderer
+                renderer = new THREE.WebGLRenderer();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                document.body.appendChild(renderer.domElement);
+                log('✅ Renderer created and added to DOM');
+                
+                // Create Peter
+                const geometry = new THREE.BoxGeometry(1, 2, 1);
+                const material = new THREE.MeshLambertMaterial({ color: 0x2196F3 });
+                peter = new THREE.Mesh(geometry, material);
+                peter.position.set(0, 1, 0);
+                scene.add(peter);
+                log('✅ Peter created');
+                
+                // Create ground
+                const groundGeometry = new THREE.PlaneGeometry(20, 1000);
+                const groundMaterial = new THREE.MeshLambertMaterial({ color: 0x4CAF50 });
+                const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+                ground.rotation.x = -Math.PI / 2;
+                ground.position.y = 0;
+                scene.add(ground);
+                log('✅ Ground created');
+                
+                // Add lighting
+                const light = new THREE.DirectionalLight(0xffffff, 1);
+                light.position.set(10, 10, 5);
+                scene.add(light);
+                log('✅ Lighting added');
+                
+                // Setup controls
+                startBtn.addEventListener('click', startGame);
+                log('✅ Event listener added');
+                
+                log('🎉 Initialization complete!');
+                
+            } catch (error) {
+                log('❌ Error: ' + error.message);
+            }
+        }
+        
+        function startGame() {
+            log('🎮 Start button clicked!');
+            gameStarted = true;
+            startBtn.style.display = 'none';
+            log('✅ Game started, starting animation loop...');
+            animate();
+        }
+        
+        function createObstacle() {
+            const geometry = new THREE.BoxGeometry(1, 2, 1);
+            const material = new THREE.MeshLambertMaterial({ color: 0xFF69B4 });
+            const obstacle = new THREE.Mesh(geometry, material);
+            
+            const lane = Math.floor(Math.random() * 3);
+            obstacle.position.set(lanes[lane], 1, -20);
+            obstacle.userData = { speed: 0.1 };
+            scene.add(obstacle);
+            obstacles.push(obstacle);
+        }
+        
+        function animate() {
+            if (!gameStarted) return;
+            
+            requestAnimationFrame(animate);
+            
+            // Move obstacles
+            obstacles.forEach((obstacle, index) => {
+                obstacle.position.z += obstacle.userData.speed;
+                
+                // Check collision
+                if (Math.abs(obstacle.position.x - peter.position.x) < 1 && 
+                    Math.abs(obstacle.position.z - peter.position.z) < 1) {
+                    log('💥 Game Over!');
+                    gameStarted = false;
+                }
+                
+                // Remove obstacles that passed
+                if (obstacle.position.z > 20) {
+                    scene.remove(obstacle);
+                    obstacles.splice(index, 1);
+                    score += 5;
+                    log('✅ Score: ' + score);
+                }
+            });
+            
+            // Spawn new obstacles
+            if (Math.random() < 0.02) {
+                createObstacle();
+            }
+            
+            renderer.render(scene, camera);
+        }
+        
+        // Initialize when page loads
+        window.addEventListener('load', () => {
+            log('📄 Page loaded');
+            setTimeout(init, 100);
+        });
+    </script>
+</body>
+</html>

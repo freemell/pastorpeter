@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Three.js Test</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body style="margin: 0; background: #000;">
+    <div id="info" style="position: absolute; top: 10px; left: 10px; color: white; z-index: 100;">
+        Three.js Test - You should see a rotating red cube
+    </div>
+    
+    <script>
+        console.log('Starting Three.js test...');
+        
+        // Check if Three.js loaded
+        if (typeof THREE === 'undefined') {
+            console.error('Three.js failed to load!');
+            document.body.innerHTML = '<div style="color: white; text-align: center; padding: 50px;">Three.js failed to load!</div>';
+        } else {
+            console.log('Three.js loaded successfully!');
+            
+            // Create scene
+            const scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x222222);
+            
+            // Create camera
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 5;
+            
+            // Create renderer
+            const renderer = new THREE.WebGLRenderer();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+            
+            // Create a simple red cube
+            const geometry = new THREE.BoxGeometry();
+            const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+            const cube = new THREE.Mesh(geometry, material);
+            scene.add(cube);
+            
+            // Animation loop
+            function animate() {
+                requestAnimationFrame(animate);
+                cube.rotation.x += 0.01;
+                cube.rotation.y += 0.01;
+                renderer.render(scene, camera);
+            }
+            
+            animate();
+            console.log('Test animation started!');
+        }
+    </script>
+</body>
+</html>
