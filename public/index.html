@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cheer Up Pastor Peter - Dodge Adventure 🎮</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            overflow: hidden;
+        }
+        
+        #startBtn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px 40px;
+            font-size: 24px;
+            background: linear-gradient(45deg, #4CAF50, #8BC34A);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        #score {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px 25px;
+            border-radius: 25px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            z-index: 1000;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        #controls {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            z-index: 1000;
+        }
+        
+        .control-btn {
+            background: linear-gradient(45deg, #E91E63, #F06292);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            min-width: 80px;
+            min-height: 50px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        #welcomeMessage {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px 25px;
+            border-radius: 25px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #E91E63;
+            z-index: 1000;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        #floatingMessages {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 500;
+        }
+        
+        #gameOver {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        
+        .game-over-content {
+            background: linear-gradient(45deg, #FF6B6B, #FF8E8E);
+            padding: 40px;
+            border-radius: 25px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            max-width: 90%;
+        }
+        
+        .game-over-content h1 {
+            font-size: 32px;
+            color: white;
+            margin-bottom: 20px;
+        }
+        
+        .game-over-content p {
+            font-size: 18px;
+            color: white;
+            margin-bottom: 25px;
+        }
+        
+        #replayBtn {
+            background: linear-gradient(45deg, #4CAF50, #8BC34A);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            margin: 5px;
+        }
+        
+        #replayBtn:hover {
+            transform: scale(1.05);
+        }
+        
+        .congrats-message {
+            position: absolute;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            padding: 20px 30px;
+            border-radius: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #8B0000;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            animation: bounce 1s ease-in-out;
+            max-width: 90%;
+            z-index: 1001;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+            40% { transform: translateX(-50%) translateY(-20px); }
+            60% { transform: translateX(-50%) translateY(-10px); }
+        }
+        
+        /* Mobile responsive design */
+        @media (max-width: 768px) {
+            .congrats-message {
+                top: 70px;
+                padding: 15px 20px;
+                font-size: 16px;
+                max-width: 95%;
+            }
+            
+            #welcomeMessage {
+                font-size: 16px;
+                padding: 10px 15px;
+            }
+            
+            #score {
+                font-size: 18px;
+                padding: 10px 15px;
+            }
+            
+            .control-btn {
+                padding: 12px 20px;
+                font-size: 14px;
+                min-width: 70px;
+                min-height: 45px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .congrats-message {
+                top: 60px;
+                padding: 12px 15px;
+                font-size: 14px;
+            }
+            
+            #welcomeMessage {
+                font-size: 14px;
+                padding: 8px 12px;
+            }
+            
+            #score {
+                font-size: 16px;
+                padding: 8px 12px;
+            }
+            
+            .control-btn {
+                padding: 10px 15px;
+                font-size: 12px;
+                min-width: 60px;
+                min-height: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="welcomeMessage">Hello My Pastor! 💕</div>
+    <button id="startBtn">Start Game! 🚀</button>
+    <div id="score">Score: <span id="scoreValue">0</span></div>
+    <div id="controls">
+        <button class="control-btn" id="leftBtn">← Left</button>
+        <button class="control-btn" id="jumpBtn">Jump! 🦘</button>
+        <button class="control-btn" id="rightBtn">Right →</button>
+    </div>
+    <div id="floatingMessages"></div>
+    
+    <div id="gameOver">
+        <div class="game-over-content">
+            <h1>Game Over! 😅</h1>
+            <p>Final Score: <span id="finalScore">0</span></p>
+            <button id="replayBtn">Play Again! 🎮</button>
+        </div>
+    </div>
+    
+    <script>
+        console.log('🎮 Game starting...');
+        
+        // Check if Three.js loaded
+        if (typeof THREE === 'undefined') {
+            console.error('❌ Three.js failed to load!');
+            document.body.innerHTML = '<div style="color: white; text-align: center; padding: 50px; font-size: 24px;">Three.js failed to load. Please check your internet connection and refresh the page.</div>';
+        } else {
+            console.log('✅ Three.js loaded successfully!');
+        }
+
+        // Game variables
+        let scene, camera, renderer, peter, obstacles = [];
+        let gameStarted = false;
+        let score = 0;
+        let currentLane = 1;
+        let isJumping = false;
+        let gameSpeed = 1;
+        let obstacleTexture;
+        const lanes = [-3, 0, 3];
+        
+        // Milla's encouraging messages
+        const messages = [
+            "You can do it, Pastor Peter! 💪",
+            "You're the best! 🌟",
+            "I'm so proud of you! 🥰",
+            "Keep going, you're amazing! 🚀",
+            "You make me so happy! 😊",
+            "You're incredibly talented! 🎨",
+            "I love watching you play! 💕",
+            "You're my favorite person! 🥰",
+            "You're doing great! Keep going! 🚀",
+            "I believe in you completely! ✨"
+        ];
+        
+        function init() {
+            console.log('🚀 Initializing...');
+            
+            try {
+                // Create scene
+                scene = new THREE.Scene();
+                scene.background = new THREE.Color(0x87CEEB);
+                console.log('✅ Scene created');
+                
+                // Create camera
+                camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                camera.position.set(0, 5, 15);
+                camera.lookAt(0, 0, 0);
+                console.log('✅ Camera created');
+                
+                // Create renderer
+                renderer = new THREE.WebGLRenderer();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                document.body.appendChild(renderer.domElement);
+                console.log('✅ Renderer created and added to DOM');
+                
+                // Load obstacle texture
+                loadObstacleTexture();
+                
+                // Create Peter
+                createPastorPeter();
+                
+                // Create ground
+                createEnvironment();
+                
+                // Add lighting
+                const light = new THREE.DirectionalLight(0xffffff, 1);
+                light.position.set(10, 10, 5);
+                scene.add(light);
+                console.log('✅ Lighting added');
+                
+                // Setup controls
+                setupControls();
+                
+                console.log('🎉 Initialization complete!');
+                
+            } catch (error) {
+                console.error('❌ Error: ' + error.message);
+            }
+        }
+        
+        function loadObstacleTexture() {
+            console.log('🖼️ Loading obstacle texture...');
+            const textureLoader = new THREE.TextureLoader();
+            obstacleTexture = textureLoader.load(
+                './breast (1).png',
+                () => console.log('✅ Obstacle texture loaded!'),
+                undefined,
+                (err) => {
+                    console.error('❌ Error loading texture:', err);
+                    // Fallback to pink color if texture fails
+                    obstacleTexture = null;
+                }
+            );
+        }
+        
+        function createPastorPeter() {
+            console.log('👨‍💼 Creating Pastor Peter...');
+            
+            // Create a more detailed character
+            const group = new THREE.Group();
+            
+            // Body
+            const bodyGeometry = new THREE.BoxGeometry(1, 2, 0.5);
+            const bodyMaterial = new THREE.MeshLambertMaterial({ color: 0x4A90E2 });
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            body.position.y = 1;
+            group.add(body);
+            
+            // Head
+            const headGeometry = new THREE.SphereGeometry(0.6, 16, 16);
+            const headMaterial = new THREE.MeshLambertMaterial({ color: 0xFFE0B2 });
+            const head = new THREE.Mesh(headGeometry, headMaterial);
+            head.position.y = 2.2;
+            group.add(head);
+            
+            // Arms
+            const armGeometry = new THREE.BoxGeometry(0.3, 1.5, 0.3);
+            const armMaterial = new THREE.MeshLambertMaterial({ color: 0xFFE0B2 });
+            
+            const leftArm = new THREE.Mesh(armGeometry, armMaterial);
+            leftArm.position.set(-0.8, 1.2, 0);
+            group.add(leftArm);
+            
+            const rightArm = new THREE.Mesh(armGeometry, armMaterial);
+            rightArm.position.set(0.8, 1.2, 0);
+            group.add(rightArm);
+            
+            // Legs
+            const legGeometry = new THREE.BoxGeometry(0.4, 1.5, 0.4);
+            const legMaterial = new THREE.MeshLambertMaterial({ color: 0x2E7D32 });
+            
+            const leftLeg = new THREE.Mesh(legGeometry, legMaterial);
+            leftLeg.position.set(-0.3, -0.5, 0);
+            group.add(leftLeg);
+            
+            const rightLeg = new THREE.Mesh(legGeometry, legMaterial);
+            rightLeg.position.set(0.3, -0.5, 0);
+            group.add(rightLeg);
+            
+            peter = group;
+            peter.position.set(0, 0, 0);
+            scene.add(peter);
+            
+            console.log('✅ Pastor Peter created!');
+        }
+        
+        function createEnvironment() {
+            console.log('🌍 Creating environment...');
+            
+            // Ground
+            const groundGeometry = new THREE.PlaneGeometry(20, 1000);
+            const groundMaterial = new THREE.MeshLambertMaterial({ color: 0x4CAF50 });
+            const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+            ground.rotation.x = -Math.PI / 2;
+            ground.position.y = 0;
+            scene.add(ground);
+
+            // Lane markers
+            for (let i = 0; i < 3; i++) {
+                const lineGeometry = new THREE.PlaneGeometry(0.2, 1000);
+                const lineMaterial = new THREE.MeshLambertMaterial({ color: 0xFFFFFF });
+                const line = new THREE.Mesh(lineGeometry, lineMaterial);
+                line.rotation.x = -Math.PI / 2;
+                line.position.set(lanes[i], 0.01, 0);
+                scene.add(line);
+            }
+            
+            console.log('✅ Environment created!');
+        }
+        
+        function createObstacle() {
+            const group = new THREE.Group();
+            
+            // Create 4 planes to make a 3D cross shape
+            const planeGeometry = new THREE.PlaneGeometry(1.5, 1.5);
+            const material = obstacleTexture ? 
+                new THREE.MeshLambertMaterial({ map: obstacleTexture, transparent: true }) :
+                new THREE.MeshLambertMaterial({ color: 0xFF69B4 });
+            
+            // Front face
+            const front = new THREE.Mesh(planeGeometry, material);
+            front.position.z = 0.75;
+            group.add(front);
+            
+            // Back face
+            const back = new THREE.Mesh(planeGeometry, material);
+            back.position.z = -0.75;
+            back.rotation.y = Math.PI;
+            group.add(back);
+            
+            // Left face
+            const left = new THREE.Mesh(planeGeometry, material);
+            left.position.x = -0.75;
+            left.rotation.y = Math.PI / 2;
+            group.add(left);
+            
+            // Right face
+            const right = new THREE.Mesh(planeGeometry, material);
+            right.position.x = 0.75;
+            right.rotation.y = -Math.PI / 2;
+            group.add(right);
+            
+            const lane = Math.floor(Math.random() * 3);
+            group.position.set(lanes[lane], 1, -20);
+            group.userData = { speed: 0.1 * gameSpeed };
+            
+            scene.add(group);
+            obstacles.push(group);
+        }
+        
+        function setupControls() {
+            const startBtn = document.getElementById('startBtn');
+            const leftBtn = document.getElementById('leftBtn');
+            const rightBtn = document.getElementById('rightBtn');
+            const jumpBtn = document.getElementById('jumpBtn');
+            const replayBtn = document.getElementById('replayBtn');
+
+            startBtn.addEventListener('click', startGame);
+            leftBtn.addEventListener('click', moveLeft);
+            rightBtn.addEventListener('click', moveRight);
+            jumpBtn.addEventListener('click', jump);
+            replayBtn.addEventListener('click', restartGame);
+
+            // Keyboard controls
+            document.addEventListener('keydown', (e) => {
+                if (!gameStarted) return;
+                
+                switch(e.code) {
+                    case 'ArrowLeft':
+                    case 'KeyA':
+                        e.preventDefault();
+                        moveLeft();
+                        break;
+                    case 'ArrowRight':
+                    case 'KeyD':
+                        e.preventDefault();
+                        moveRight();
+                        break;
+                    case 'Space':
+                        e.preventDefault();
+                        jump();
+                        break;
+                }
+            });
+        }
+        
+        function startGame() {
+            console.log('🎮 Start button clicked!');
+            gameStarted = true;
+            document.getElementById('startBtn').style.display = 'none';
+            console.log('✅ Game started, starting animation loop...');
+            
+            // Check if Three.js scene is properly initialized
+            if (!scene || !camera || !renderer) {
+                console.error('❌ Three.js not properly initialized!');
+                alert('Game failed to initialize. Please refresh the page.');
+                return;
+            }
+            
+            animate();
+        }
+        
+        function moveLeft() {
+            if (currentLane > 0 && !isJumping) {
+                currentLane--;
+                animateMove();
+            }
+        }
+
+        function moveRight() {
+            if (currentLane < 2 && !isJumping) {
+                currentLane++;
+                animateMove();
+            }
+        }
+        
+        function animateMove() {
+            if (!peter) return;
+            
+            const targetX = lanes[currentLane];
+            const startX = peter.position.x;
+            const duration = 300;
+            const startTime = Date.now();
+
+            function animate() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const easeProgress = 1 - Math.pow(1 - progress, 3);
+                
+                peter.position.x = startX + (targetX - startX) * easeProgress;
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                }
+            }
+            animate();
+        }
+        
+        function jump() {
+            if (isJumping || !peter || !gameStarted) return;
+            
+            isJumping = true;
+            
+            const startY = peter.position.y;
+            const jumpHeight = 5; // Increased jump height
+            const duration = 800; // Longer jump duration
+            const startTime = Date.now();
+
+            function animateJump() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const jumpProgress = Math.sin(progress * Math.PI);
+                
+                peter.position.y = startY + jumpHeight * jumpProgress;
+                peter.rotation.x = progress * Math.PI * 0.1;
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animateJump);
+                } else {
+                    peter.position.y = startY;
+                    peter.rotation.x = 0;
+                    isJumping = false;
+                }
+            }
+            animateJump();
+        }
+        
+        function showDodgeMessage() {
+            // Messages removed
+        }
+        
+        function showCongratsMessage(score) {
+            // Messages removed
+        }
+        
+        function showRandomMessage() {
+            // Messages removed
+        }
+        
+        function gameOver() {
+            gameStarted = false;
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('gameOver').style.display = 'flex';
+            console.log('🎮 Game Over! Final Score:', score);
+        }
+        
+        function restartGame() {
+            console.log('🔄 Restarting game...');
+            
+            // Reset game state
+            gameStarted = false;
+            score = 0;
+            currentLane = 1;
+            isJumping = false;
+            gameSpeed = 1;
+            
+            // Reset Peter position
+            if (peter) {
+                peter.position.set(0, 0, 0);
+                peter.rotation.set(0, 0, 0);
+            }
+            
+            // Clear obstacles
+            obstacles.forEach(obstacle => scene.remove(obstacle));
+            obstacles = [];
+            
+            // Hide game over screen
+            document.getElementById('gameOver').style.display = 'none';
+            
+            // Show start button
+            document.getElementById('startBtn').style.display = 'block';
+            document.getElementById('startBtn').textContent = 'Start Game! 🚀';
+            
+            // Update score display
+            document.getElementById('scoreValue').textContent = score;
+            
+            console.log('✅ Game restarted!');
+        }
+        
+        function animate() {
+            if (!gameStarted) return;
+            
+            requestAnimationFrame(animate);
+            
+            // Move obstacles
+            obstacles.forEach((obstacle, index) => {
+                obstacle.position.z += obstacle.userData.speed;
+                obstacle.rotation.y += 0.02;
+                
+                // Check collision
+                if (Math.abs(obstacle.position.x - peter.position.x) < 1 && 
+                    Math.abs(obstacle.position.z - peter.position.z) < 1 &&
+                    peter.position.y < 2) { // Only collide if not jumping high enough
+                    console.log('💥 Game Over!');
+                    gameOver();
+                    return;
+                }
+                
+                // Remove obstacles that passed
+                if (obstacle.position.z > 20) {
+                    scene.remove(obstacle);
+                    obstacles.splice(index, 1);
+                    score += 5;
+                    document.getElementById('scoreValue').textContent = score;
+                    // Messages removed
+                    
+                    // Increase game speed
+                    if (score % 50 === 0) {
+                        gameSpeed += 0.1;
+                        console.log('🚀 Game speed increased to:', gameSpeed);
+                    }
+                }
+            });
+            
+            // Spawn new obstacles
+            if (Math.random() < 0.02 * gameSpeed) {
+                createObstacle();
+            }
+            
+            // Messages removed
+            
+            renderer.render(scene, camera);
+        }
+        
+        // Initialize when page loads
+        window.addEventListener('load', () => {
+            console.log('📄 Page loaded');
+            setTimeout(init, 100);
+        });
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
